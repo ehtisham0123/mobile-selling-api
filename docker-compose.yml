@@ -1,0 +1,35 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: DockerFile  # Ensure the case matches your actual Dockerfile name
+    command: npm run start:dev
+    volumes:
+      - .:/app
+      - /app/node_modules  # This makes sure the node_modules in the container do not get overwritten by the host
+    container_name: app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+    stdin_open: true
+    tty: true
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    env_file:
+      - .env
+    volumes:
+      - mysql:/var/lib/mysql
+
+volumes:
+  mysql:
+    name: taste_maker_app_db
