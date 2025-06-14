@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-import { hash } from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
+import { hash } from "bcrypt";
+import { v4 as uuidv4 } from "uuid";
+import { PrismaClient, Role } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const bcryptSaltRounds = 10;
@@ -12,7 +12,7 @@ async function hashPassword(password: string): Promise<string> {
 
 async function main() {
   console.log(
-    'Seeding database with users, wallets, packages, and sponsors...',
+    "Seeding database with users, wallets, packages, and sponsors..."
   );
 
   function getRandomMultipleOf100(min: number, max: number): number {
@@ -26,30 +26,31 @@ async function main() {
 
   const admin = await prisma.user.create({
     data: {
-      id: '20c00fd4-84a5-4197-b880-27dbd27af098',
-      firstName: 'dream',
-      lastName: 'club',
-      email: 'dreamclub263@gmail.com',
-      password: await hashPassword('@Pakistan123'),
+      id: "20c00fd4-84a5-4197-b880-27dbd27af098",
+      firstName: "dream",
+      lastName: "club",
+      email: "dreamclub263@gmail.com",
+      role: Role.ADMIN,
+      password: await hashPassword("@Pakistan123"),
     },
   });
 
   const categories = [
-    'Smartphones',
-    'Tablets',
-    'Smart Watches',
-    'Earbuds',
-    'Chargers',
-    'Power Banks',
-    'Phone Cases',
-    'Screen Protectors',
-    'Headphones',
-    'Bluetooth Speakers',
-    'Samsung',
-    'Apple',
-    'Xiaomi',
-    'OnePlus',
-    'Oppo',
+    "Smartphones",
+    "Tablets",
+    "Smart Watches",
+    "Earbuds",
+    "Chargers",
+    "Power Banks",
+    "Phone Cases",
+    "Screen Protectors",
+    "Headphones",
+    "Bluetooth Speakers",
+    "Samsung",
+    "Apple",
+    "Xiaomi",
+    "OnePlus",
+    "Oppo",
   ];
 
   for (const name of categories) {

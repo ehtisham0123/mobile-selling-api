@@ -19,6 +19,13 @@ enum UnitOfMeasurement {
   Others
 }
 
+enum Role {
+  ADMIN
+  USER
+  CUSTOMER
+}
+
+
 enum OrderStatus {
   Pending
   Confirmed
@@ -40,9 +47,16 @@ model User {
   firstName String
   lastName  String
   email     String   @unique
+  role      Role
   password  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  products  Product[]
+
+  // Reverse relations
+  buyerOrders  Order[] @relation("BuyerRelation")
+  sellerOrders Order[] @relation("SellerRelation")
 }
 
 model Table {
@@ -78,6 +92,8 @@ model Product {
   category        Category             @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   recommendations ProductRecommendation[] @relation("OriginProduct")
   recommendedBy   ProductRecommendation[] @relation("RecommendedProduct")
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 }
 
 model Order {
@@ -91,6 +107,12 @@ model Order {
 
   items        OrderItem[]
   orderAddress OrderAddress?
+
+  buyerId String
+  buyer   User   @relation("BuyerRelation", fields: [buyerId], references: [id])
+
+  sellerId String
+  seller   User   @relation("SellerRelation", fields: [sellerId], references: [id])
 }
 
 model OrderItem {

@@ -1,19 +1,30 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { CreateProductDto } from "./dto/create-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class ProductService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, userId: string) {
     const { recommendations, ...productData } = createProductDto;
 
     if (recommendations && recommendations.length) {
       return this.prisma.$transaction(async (prisma) => {
         const product = await prisma.product.create({
-          data: productData,
+          data: {
+            name: productData.name,
+            price: productData.price,
+            isAvailable: productData.isAvailable,
+            image: productData.image,
+            user: {
+              connect: { id: userId },
+            },
+            category: {
+              connect: { id: productData.categoryId },
+            },
+          },
         });
 
         await Promise.all(
@@ -23,21 +34,34 @@ export class ProductService {
                 originProductId: product.id,
                 recommendedProductId,
               },
-            }),
-          ),
+            })
+          )
         );
 
         return product;
       });
     } else {
       return this.prisma.product.create({
-        data: productData,
+        data: {
+          name: productData.name,
+          price: productData.price,
+          isAvailable: productData.isAvailable,
+          image: productData.image,
+          user: {
+            connect: { id: userId },
+          },
+          category: {
+            connect: { id: productData.categoryId },
+          },
+        },
       });
     }
   }
-
-  async findAll() {
+  async findAll(userId: string) {
     return this.prisma.product.findMany({
+      where: {
+        userId: userId,
+      },
       include: {
         recommendations: {
           include: {
@@ -47,7 +71,6 @@ export class ProductService {
       },
     });
   }
-
   async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
@@ -69,12 +92,14 @@ export class ProductService {
     const { recommendations, ...updateData } = updateProductDto;
 
     return this.prisma.$transaction(async (prisma) => {
-      const updatedProduct = await prisma.product.update({
-        where: { id },
-        data: updateData,
-      }).catch((error) => {
-        throw new NotFoundException(`Product #${id} not found`);
-      });
+      const updatedProduct = await prisma.product
+        .update({
+          where: { id },
+          data: updateData,
+        })
+        .catch((error) => {
+          throw new NotFoundException(`Product #${id} not found`);
+        });
 
       if (recommendations) {
         await prisma.productRecommendation.deleteMany({
@@ -88,8 +113,8 @@ export class ProductService {
                 originProductId: id,
                 recommendedProductId,
               },
-            }),
-          ),
+            })
+          )
         );
       }
 
@@ -107,6 +132,3 @@ export class ProductService {
     }
   }
 }
-
-
-

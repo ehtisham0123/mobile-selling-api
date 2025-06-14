@@ -7,8 +7,6 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { SecurityConfig } from '../configs/config.interface';
 import { PasswordService } from './password.service';
-import { FacebookStrategy } from "./facebook.strategy";
-import { GoogleStrategy } from "./google.strategy";
 
 
 @Module({
@@ -29,7 +27,7 @@ import { GoogleStrategy } from "./google.strategy";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService,PasswordService, JwtStrategy,FacebookStrategy,GoogleStrategy],
+  providers: [AuthService, PasswordService, JwtStrategy],
   exports: [],
 })
-export class AuthModule {}
+export class AuthModule { }

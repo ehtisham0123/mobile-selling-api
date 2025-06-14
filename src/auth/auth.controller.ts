@@ -1,11 +1,11 @@
-import { Body, Controller, Post, Get, Req, UnauthorizedException, UseGuards, HttpStatus, Res, HttpException } from '@nestjs/common';
+import { Request } from 'express';
+import { Body, Controller, Post, Get, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginInput } from './dto/login.input';
 import { RefreshTokenInput } from './dto/refresh-token.input';
-import { Request } from 'express';
-import { ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SignupInput } from './dto/signup.input';
-import { AuthGuard } from "@nestjs/passport";
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -28,6 +28,8 @@ export class AuthController {
     return await this.authService.refreshToken(token);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('user')
   async getUser(@Req() req: Request) {
     const authHeader = req.headers.authorization;
@@ -38,42 +40,4 @@ export class AuthController {
 
     return await this.authService.getUserFromToken(token);
   }
-
-  @Get("/facebook")
-  @UseGuards(AuthGuard("facebook"))
-  async facebookLogin(): Promise<any> {
-  }
-
-  @ApiOperation({ summary: 'Facebook OAuth Callback', description: 'Callback endpoint for Facebook OAuth.' }) // Swagger operation description
-  @ApiQuery({ name: 'code', description: 'Authorization code received from Facebook.', required: true })
-  @Get('/facebook/callback')
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLoginCallback(@Req() req, @Res() res) {
-    try {
-      const jwt = await this.authService.generateTokens(req.user.user);
-      return { accessToken: jwt.accessToken };
-    } catch (error) {
-      throw new HttpException('Facebook login failed', HttpStatus.UNAUTHORIZED);
-    }
-  }
-
-  @Get('google')
-  @UseGuards(AuthGuard('google'))
-  async googleLogin(): Promise<any> {
-    // Initiates the Google login flow
-  }
-
-  @ApiOperation({ summary: 'Facebook OAuth Callback', description: 'Callback endpoint for Facebook OAuth.' }) // Swagger operation description
-  @ApiQuery({ name: 'code', description: 'Authorization code received from Facebook.', required: true })
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  async googleLoginCallback(@Req() req, @Res() res): Promise<any> {
-   try {
-      const jwt = await this.authService.generateTokens(req.user.user);
-      return { accessToken: jwt.accessToken };
-    } catch (error) {
-      throw new HttpException('Facebook login failed', HttpStatus.UNAUTHORIZED);
-    }
-  }
-
 }
