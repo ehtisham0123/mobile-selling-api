@@ -1,12 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { PrismaService } from '../../prisma/prisma.service';
-
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { CreateEmployeeDto } from "./dto/create-employee.dto";
+import { UpdateEmployeeDto } from "./dto/update-employee.dto";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class EmployeeService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   create(createEmployeeDto: CreateEmployeeDto) {
     const employee = this.prisma.employee.create({
@@ -16,9 +15,15 @@ export class EmployeeService {
   }
 
   findAll() {
-    return this.prisma.employee.findMany();
+    return this.prisma.user.findMany({
+      where: {
+        role: {
+          not: "ADMIN",
+        },
+      },
+    });
   }
-
+  
   async findOne(id: string) {
     const employee = await this.prisma.employee.findUnique({
       where: { id },

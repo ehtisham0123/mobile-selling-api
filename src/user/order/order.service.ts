@@ -1,10 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { UpdateOrderDto } from "./dto/update-order.dto";
 
 @Injectable()
 export class OrderService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async findAll() {
     return this.prisma.order.findMany({
@@ -14,29 +14,26 @@ export class OrderService {
             product: true,
           },
         },
+        orderAddress: true, // include it directly at the order level
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
   }
-  
 
   findOne(id: string) {
     return `This action returns a #${id} order`;
   }
 
-
   async updateOrderStatus(orderId: string, updateOrderDto: UpdateOrderDto) {
     try {
       return await this.prisma.order.update({
-        where: { id:orderId },
+        where: { id: orderId },
         data: updateOrderDto,
       });
     } catch (error) {
       throw new NotFoundException(`Order #${orderId} not found`);
     }
   }
-
-
 }

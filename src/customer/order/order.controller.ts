@@ -1,10 +1,13 @@
-import { Controller, Post, Body, Req } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Order } from './entities/order.entity'; // Assuming you only need the Order entity
+import { JwtAuthGuard } from "../../auth/jwt-auth.guard";
 
+@ApiBearerAuth()
 @ApiTags('Customer Orders')
+@UseGuards(JwtAuthGuard)
 @Controller('customer/order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
@@ -17,4 +20,4 @@ export class OrderController {
     const buyerId = req.user.id;
     return await this.orderService.create(createOrderDto,buyerId);
   }
-}
+} 
