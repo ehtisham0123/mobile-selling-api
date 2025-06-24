@@ -71,6 +71,19 @@ export class ProductService {
       },
     });
   }
+
+  async findAllForAdmin() {
+    return this.prisma.product.findMany({
+      include: {
+        recommendations: {
+          include: {
+            recommendedProduct: true,
+          },
+        },
+      },
+    });
+  }
+
   async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },

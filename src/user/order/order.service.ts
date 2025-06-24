@@ -6,8 +6,11 @@ import { UpdateOrderDto } from "./dto/update-order.dto";
 export class OrderService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(userId: string) {
     return this.prisma.order.findMany({
+      where: {
+        sellerId: userId, // only orders where this user is the seller
+      },
       include: {
         items: {
           include: {

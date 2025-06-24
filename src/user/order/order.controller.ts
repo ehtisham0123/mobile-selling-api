@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Req, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Order } from './entities/order.entity';
@@ -19,8 +19,9 @@ export class OrderController {
     description: 'Get all orders',
   })
   @Get('all')
-  findAll() {
-    return this.orderService.findAll();
+  findAll(@Req() req: any) {
+    const userId = req.user.id;
+    return this.orderService.findAll(userId);
   }
 
   @ApiOkResponse({

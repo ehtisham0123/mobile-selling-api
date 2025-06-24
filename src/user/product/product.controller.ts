@@ -90,6 +90,19 @@ export class ProductController {
     return this.productService.findAll(userId);
   }
 
+
+
+  @ApiOkResponse({
+    isArray: true,
+    type: Product,
+    description: "Get all products",
+  })
+  @Get('admin')
+  findAllForAdmin(@Req() req: any) {
+    return this.productService.findAllForAdmin();
+  }
+
+
   @ApiOkResponse({
     type: Product,
     description: "Get product by given id",
