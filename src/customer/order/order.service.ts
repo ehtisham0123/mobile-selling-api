@@ -80,4 +80,23 @@ export class OrderService {
 
     return createdOrders;
   }
+
+  async findAll(userId: string) {
+    return this.prisma.order.findMany({
+      where: {
+        buyerId: userId, // only orders where this user is the seller
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+        orderAddress: true, // include it directly at the order level
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
 }
